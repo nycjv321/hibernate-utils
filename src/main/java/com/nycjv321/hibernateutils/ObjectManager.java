@@ -9,6 +9,7 @@ import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -122,11 +123,20 @@ public final class ObjectManager {
         session.beginTransaction();
         final OUTPUT_TYPE outputTYPE = operation.apply(session);
         session.getTransaction().commit();
+        session.close();
         return outputTYPE;
     }
 
     public Search search() {
         return new Search(this);
+    }
+
+    public List<Object> createQuery(String string) {
+        return performSelect(session -> session.createQuery(string).list());
+    }
+
+    public List<Object> createSQLQuery(String string) {
+        return performSelect(session -> session.createSQLQuery(string).list());
     }
 
     public enum ENV {
